@@ -75,16 +75,18 @@ float cnoise(vec3 P){
 
 uniform float time;
 varying float vNoise;
+varying vec2 vUv;
 
 void main() {
   vec3 newPosition = position;
   float PI = 3.1415925;
-  newPosition.z += 0.1 * cnoise(vec3(4.0 * position.x, 4.0 * position.y, time / 10.0));
+  //newPosition.z += 0.1 * cnoise(vec3(4.0 * position.x, 4.0 * position.y, time / 10.0));
   //newPosition.z += 0.1 * sin((newPosition.x + 0.25 + time/20.0) * 2.0 * PI);
 
   float noise = cnoise(vec3(4.0 * position.x, 4.0 * position.y, time / 10.0));
   //float noise =  0.1 * sin((newPosition.x + 0.25 + time/20.0) * 2.0 * PI);
   vNoise = noise;
+  vUv = uv; // uv comes from THREE js kind of
 
   gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
 }

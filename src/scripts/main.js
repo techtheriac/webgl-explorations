@@ -3,6 +3,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import fragment from "../shaders/fragment.glsl";
 import vertex from "../shaders/vertex.glsl";
 
+import cityScape from "../images/city_scape.jpg";
+
 export default class Sketch {
   constructor(options) {
     this.container = options.dom;
@@ -45,11 +47,12 @@ export default class Sketch {
   };
 
   addObjects() {
-    this.geometry = new THREE.PlaneBufferGeometry(0.5, 0.5, 50, 50);
+    this.geometry = new THREE.PlaneBufferGeometry(4.0, 4.0, 50, 50);
 
     this.material = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
+        cityScapeTexture: { value: new THREE.TextureLoader().load(cityScape) },
       },
       side: THREE.DoubleSide,
       fragmentShader: fragment,
