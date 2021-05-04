@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import imagesLoaded from "imagesloaded";
+import FontFaceObserver from "fontfaceobserver";
 import fragment from "../shaders/fragment.glsl";
 import vertex from "../shaders/vertex.glsl";
 
@@ -29,14 +31,39 @@ export default class Sketch {
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-    this.images = [...document.querySelectorAll("img")];
+    const fontOpen = new Promise((resolve) => {
+      new FontFaceObserver("Open Sans").load().then(() => {
+        resolve();
+      });
+    });
 
-    this.addImages();
-    this.setPosition();
-    this.resize();
-    this.setUpResize();
-    this.addObjects();
-    this.render();
+    const fontPlayfair = new Promise((resolve) => {
+      new FontFaceObserver("Playfair Display").load().then(() => {
+        resolve();
+      });
+    });
+
+    const preloadImage = new Promise((resolve, reject) => {
+      imagesLoaded(
+        document.querySelectorAll("img"),
+        { background: true },
+        resolve
+      );
+    });
+
+    // All promises
+    const allDone = [fontOpen, fontPlayfair, preloadImage];
+
+    Promise.all(allDone).then(() => {
+      this.addImages();
+      this.setPosition();
+      this.resize();
+      this.setUpResize();
+      this.addObjects();
+      this.render();
+    });
+
+    this.images = [...document.querySelectorAll("img")];
   }
 
   addImages() {

@@ -17,6 +17,8 @@
     "sass": "^1.32.12"
   },
   "dependencies": {
+    "fontfaceobserver": "^2.1.0",
+    "imagesloaded": "^4.1.4",
     "three": "^0.128.0"
   }
 }
