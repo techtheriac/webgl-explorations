@@ -4,6 +4,7 @@ import fragment from "../shaders/fragment.glsl";
 import vertex from "../shaders/vertex.glsl";
 
 import cityScape from "../images/city_scape.jpg";
+import { MeshBasicMaterial } from "three";
 
 export default class Sketch {
   constructor(options) {
@@ -16,21 +17,55 @@ export default class Sketch {
     this.camera = new THREE.PerspectiveCamera(
       70,
       this.width / this.height,
-      0.01,
-      10
+      100,
+      2000
     );
-    this.camera.position.z = 1;
+    this.camera.position.z = 600;
+    this.camera.fov = 2 * Math.atan(this.height / 2 / 600) * (180 / Math.PI);
 
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     this.renderer.setSize(this.width, this.height);
     this.container.appendChild(this.renderer.domElement);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
+    this.images = [...document.querySelectorAll("img")];
+
+    this.addImages();
+    this.setPosition();
     this.resize();
     this.setUpResize();
     this.addObjects();
     this.render();
+  }
+
+  addImages() {
+    this.imageStore = this.images.map((image) => {
+      let { top, left, width, height } = image.getBoundingClientRect();
+
+      let geometry = new THREE.PlaneBufferGeometry(width, height, 1, 1);
+      let material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+      let mesh = new THREE.Mesh(geometry, material);
+      this.scene.add(mesh);
+
+      return {
+        image,
+        mesh,
+        top,
+        left,
+        width,
+        height,
+      };
+    });
+
+    //console.log(this.imageStore);
+  }
+
+  setPosition() {
+    this.imageStore.forEach((o) => {
+      o.mesh.position.y = -o.top + this.height / 2 - o.height / 2;
+      o.mesh.position.x = o.left - this.width / 2 + o.width / 2;
+    });
   }
 
   setUpResize() {
@@ -43,11 +78,10 @@ export default class Sketch {
     this.renderer.setSize(this.width, this.height);
     this.camera.aspect = this.width / this.height;
     this.camera.updateProjectionMatrix();
-    console.log("resizing");
   };
 
   addObjects() {
-    this.geometry = new THREE.PlaneBufferGeometry(1, 1, 50, 50);
+    this.geometry = new THREE.PlaneBufferGeometry(200, 400, 10, 10);
 
     this.material = new THREE.ShaderMaterial({
       uniforms: {

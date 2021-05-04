@@ -88,7 +88,7 @@ void main() {
 
   float dist = distance(uv, vec2(0.5));
 
-  newPosition.z += 0.05 * sin(dist * 20.0 + time);
+  //newPosition.z += 0.05 * sin(dist * 20.0 + time);
   //vNoise = noise;
   vNoise = dist;
   vUv = uv; // uv comes from THREE js kind of
