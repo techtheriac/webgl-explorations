@@ -47,7 +47,7 @@ export default class Sketch {
   };
 
   addObjects() {
-    this.geometry = new THREE.PlaneBufferGeometry(4, 4, 150, 150);
+    this.geometry = new THREE.PlaneBufferGeometry(1, 1, 50, 50);
 
     this.material = new THREE.ShaderMaterial({
       uniforms: {
@@ -58,7 +58,7 @@ export default class Sketch {
       fragmentShader: fragment,
       vertexShader: vertex,
 
-      //wireframe: true,
+      wireframe: true,
     });
 
     this.mesh = new THREE.Mesh(this.geometry, this.material);
@@ -67,8 +67,8 @@ export default class Sketch {
 
   render() {
     this.time += 0.25;
-    this.mesh.rotation.x = this.time / 2000;
-    this.mesh.rotation.y = this.time / 1000;
+    // this.mesh.rotation.x = this.time / 2000;
+    // this.mesh.rotation.y = this.time / 1000;
 
     this.material.uniforms.time.value = this.time;
 

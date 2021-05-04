@@ -13,9 +13,10 @@ void main() {
 
   newUv = vec2(newUv.x, newUv.y + 0.1 * sin(newUv.x * 10.0 + time / 20.0));
 
-  vec4 cityScapeView = texture2D(cityScapeTexture, newUv + vNoise);
+  vec4 cityScapeView = texture2D(cityScapeTexture, newUv);
 
   //gl_FragColor = vec4(finalColor, 1.0);
-  //gl_FragColor = vec4(vUv, 0.0, 1.0);
-  gl_FragColor = cityScapeView;
+ // gl_FragColor = vec4(vUv, 0.0, 1.0);
+    gl_FragColor = vec4(vNoise);
+  //gl_FragColor = cityScapeView;
 }

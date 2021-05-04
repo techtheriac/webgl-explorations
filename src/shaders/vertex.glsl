@@ -85,8 +85,14 @@ void main() {
 
   float noise = cnoise(vec3(4.0 * position.x, 4.0 * position.y, time / 10.0));
   //float noise =  0.1 * sin((newPosition.x + 0.25 + time/20.0) * 2.0 * PI);
-  vNoise = noise;
+
+  float dist = distance(uv, vec2(0.5));
+
+  newPosition.z += 0.05 * sin(dist * 20.0 + time);
+  //vNoise = noise;
+  vNoise = dist;
   vUv = uv; // uv comes from THREE js kind of
+
 
   gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
 }
