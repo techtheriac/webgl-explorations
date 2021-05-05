@@ -6,7 +6,6 @@ import fragment from "../shaders/fragment.glsl";
 import vertex from "../shaders/vertex.glsl";
 
 import cityScape from "../images/city_scape.jpg";
-import { MeshBasicMaterial } from "three";
 
 export default class Sketch {
   constructor(options) {
@@ -59,7 +58,7 @@ export default class Sketch {
       this.setPosition();
       this.resize();
       this.setUpResize();
-      this.addObjects();
+      //this.addObjects();
       this.render();
     });
 
@@ -71,7 +70,13 @@ export default class Sketch {
       let { top, left, width, height } = image.getBoundingClientRect();
 
       let geometry = new THREE.PlaneBufferGeometry(width, height, 1, 1);
-      let material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+      // In threeJs you can add texture directly from DOM elements
+      let texture = new THREE.Texture(image);
+      texture.needsUpdate = true;
+      let material = new THREE.MeshBasicMaterial({
+        //color: 0xff0000,
+        map: texture,
+      });
       let mesh = new THREE.Mesh(geometry, material);
       this.scene.add(mesh);
 
@@ -131,7 +136,7 @@ export default class Sketch {
     // this.mesh.rotation.x = this.time / 2000;
     // this.mesh.rotation.y = this.time / 1000;
 
-    this.material.uniforms.time.value = this.time;
+    // this.material.uniforms.time.value = this.time;
 
     this.renderer.render(this.scene, this.camera);
     window.requestAnimationFrame(this.render.bind(this));
