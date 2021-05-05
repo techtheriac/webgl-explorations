@@ -4,6 +4,13 @@ import imagesLoaded from "imagesloaded";
 import FontFaceObserver from "fontfaceobserver";
 import fragment from "../shaders/fragment.glsl";
 import vertex from "../shaders/vertex.glsl";
+import LocomotiveScroll from "locomotive-scroll";
+
+const scroll = new LocomotiveScroll({
+  el: document.querySelector("[data-scroll-container]"),
+  smooth: true,
+  lerp: 0.01,
+});
 
 import cityScape from "../images/city_scape.jpg";
 
@@ -62,6 +69,7 @@ export default class Sketch {
       this.setUpResize();
       //this.addObjects();
       this.render();
+
       window.addEventListener("scroll", () => {
         this.currentScroll = window.scrollY;
         this.setPosition();
@@ -144,7 +152,7 @@ export default class Sketch {
     // this.mesh.rotation.y = this.time / 1000;
 
     // this.material.uniforms.time.value = this.time;
-
+    this.setPosition();
     this.renderer.render(this.scene, this.camera);
     window.requestAnimationFrame(this.render.bind(this));
   }
