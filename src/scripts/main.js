@@ -53,6 +53,8 @@ export default class Sketch {
     // All promises
     const allDone = [fontOpen, fontPlayfair, preloadImage];
 
+    this.currentScroll = 0;
+
     Promise.all(allDone).then(() => {
       this.addImages();
       this.setPosition();
@@ -60,6 +62,10 @@ export default class Sketch {
       this.setUpResize();
       //this.addObjects();
       this.render();
+      window.addEventListener("scroll", () => {
+        this.currentScroll = window.scrollY;
+        this.setPosition();
+      });
     });
 
     this.images = [...document.querySelectorAll("img")];
@@ -95,7 +101,8 @@ export default class Sketch {
 
   setPosition() {
     this.imageStore.forEach((o) => {
-      o.mesh.position.y = -o.top + this.height / 2 - o.height / 2;
+      o.mesh.position.y =
+        this.currentScroll - o.top + this.height / 2 - o.height / 2;
       o.mesh.position.x = o.left - this.width / 2 + o.width / 2;
     });
   }
