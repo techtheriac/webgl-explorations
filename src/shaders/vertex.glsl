@@ -74,8 +74,11 @@ float cnoise(vec3 P){
 }
 
 uniform float time;
+uniform vec2 hover;
+uniform float hoverState;
 varying float vNoise;
 varying vec2 vUv;
+
 
 void main() {
   vec3 newPosition = position;
@@ -86,11 +89,11 @@ void main() {
   float noise = cnoise(vec3(4.0 * position.x, 4.0 * position.y, time / 10.0));
   //float noise =  0.1 * sin((newPosition.x + 0.25 + time/20.0) * 2.0 * PI);
 
-  float dist = distance(uv, vec2(0.5));
+  float dist = distance(uv, hover);
 
-  //newPosition.z += 0.05 * sin(dist * 20.0 + time);
   //vNoise = noise;
   vNoise = dist;
+  newPosition.z += hoverState*6.0*sin(dist*10.0 + time);
   vUv = uv; // uv comes from THREE js kind of
 
 

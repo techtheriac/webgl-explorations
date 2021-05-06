@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import imagesLoaded from "imagesloaded";
 import FontFaceObserver from "fontfaceobserver";
+import gsap from "gsap";
 import fragment from "../shaders/fragment.glsl";
 import vertex from "../shaders/vertex.glsl";
 import Scroll from "./scroll";
@@ -58,6 +59,9 @@ export default class Sketch {
       );
     });
 
+    this.raycaster = new THREE.Raycaster();
+    this.mouse = new THREE.Vector2();
+
     // All promises
     const allDone = [fontOpen, fontPlayfair, preloadImage];
 
@@ -67,6 +71,8 @@ export default class Sketch {
       this.scroll = new Scroll();
       this.addImages();
       this.setPosition();
+
+      this.mouseMovement();
       this.resize();
       this.setUpResize();
       //this.addObjects();
@@ -76,18 +82,69 @@ export default class Sketch {
     this.images = [...document.querySelectorAll("img")];
   }
 
+  mouseMovement() {
+    window.addEventListener(
+      "mousemove",
+      (event) => {
+        this.mouse.x = (event.clientX / this.width) * 2 - 1;
+        this.mouse.y = -(event.clientY / this.height) * 2 + 1;
+
+        // update the picking ray with the camera and mouse position
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+        const intersects = this.raycaster.intersectObjects(this.scene.children);
+
+        if (intersects.length > 0) {
+          // console.log(intersects[0]);
+          let obj = intersects[0].object;
+          obj.material.uniforms.hover.value = intersects[0].uv;
+        }
+      },
+      false
+    );
+  }
+
   addImages() {
+    this.material = new THREE.ShaderMaterial({
+      uniforms: {
+        time: { value: 0 },
+        uImage: {},
+        hover: { value: new THREE.Vector2(0.5, 0.5) },
+        hoverState: { value: 0 },
+        cityScapeTexture: { value: new THREE.TextureLoader().load(cityScape) },
+      },
+      side: THREE.DoubleSide,
+      fragmentShader: fragment,
+      vertexShader: vertex,
+    });
+
+    this.materials = [];
+
     this.imageStore = this.images.map((image) => {
       let { top, left, width, height } = image.getBoundingClientRect();
 
-      let geometry = new THREE.PlaneBufferGeometry(width, height, 1, 1);
+      let geometry = new THREE.PlaneBufferGeometry(width, height, 10, 10);
       // In threeJs you can add texture directly from DOM elements
       let texture = new THREE.Texture(image);
       texture.needsUpdate = true;
-      let material = new THREE.MeshBasicMaterial({
-        //color: 0xff0000,
-        map: texture,
+      // Wer can't use the same exact material so we clone it
+      let material = this.material.clone();
+      this.materials.push(material);
+      material.uniforms.uImage.value = texture;
+
+      image.addEventListener("mouseenter", () => {
+        gsap.to(material.uniforms.hoverState, {
+          duration: 1,
+          value: 1,
+        });
       });
+
+      image.addEventListener("mouseout", () => {
+        gsap.to(material.uniforms.hoverState, {
+          duration: 1,
+          value: 0,
+        });
+      });
+
       let mesh = new THREE.Mesh(geometry, material);
       this.scene.add(mesh);
 
@@ -100,8 +157,6 @@ export default class Sketch {
         height,
       };
     });
-
-    //console.log(this.imageStore);
   }
 
   setPosition() {
@@ -135,8 +190,6 @@ export default class Sketch {
       side: THREE.DoubleSide,
       fragmentShader: fragment,
       vertexShader: vertex,
-
-      wireframe: true,
     });
 
     this.mesh = new THREE.Mesh(this.geometry, this.material);
@@ -154,7 +207,9 @@ export default class Sketch {
     this.setPosition();
     // this.mesh.rotation.x = this.time / 2000;
     // this.mesh.rotation.y = this.time / 1000;
-
+    this.materials.forEach((m) => {
+      m.uniforms.time.value = this.time;
+    });
     // this.material.uniforms.time.value = this.time;
     this.renderer.render(this.scene, this.camera);
     window.requestAnimationFrame(this.render.bind(this));
