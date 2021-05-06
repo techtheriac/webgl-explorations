@@ -4,13 +4,14 @@ import imagesLoaded from "imagesloaded";
 import FontFaceObserver from "fontfaceobserver";
 import fragment from "../shaders/fragment.glsl";
 import vertex from "../shaders/vertex.glsl";
-import LocomotiveScroll from "locomotive-scroll";
+import Scroll from "./scroll";
+//import LocomotiveScroll from "locomotive-scroll";
 
-const scroll = new LocomotiveScroll({
-  el: document.querySelector("[data-scroll-container]"),
-  smooth: true,
-  lerp: 0.01,
-});
+// const scroll = new LocomotiveScroll({
+//   el: document.querySelector("[data-scroll-container]"),
+//   smooth: true,
+//   lerp: 0.01,
+// });
 
 import cityScape from "../images/city_scape.jpg";
 
@@ -63,17 +64,13 @@ export default class Sketch {
     this.currentScroll = 0;
 
     Promise.all(allDone).then(() => {
+      this.scroll = new Scroll();
       this.addImages();
       this.setPosition();
       this.resize();
       this.setUpResize();
       //this.addObjects();
       this.render();
-
-      window.addEventListener("scroll", () => {
-        this.currentScroll = window.scrollY;
-        this.setPosition();
-      });
     });
 
     this.images = [...document.querySelectorAll("img")];
@@ -148,11 +145,17 @@ export default class Sketch {
 
   render() {
     this.time += 0.25;
+
+    // Smooth scroll to avoid mesh lag on scroll
+    // Keeping the scroll logic here means the meshes
+    // and page scroll are rendered at the same requestAnimation frame
+    this.scroll.render();
+    this.currentScroll = this.scroll.scrollToRender;
+    this.setPosition();
     // this.mesh.rotation.x = this.time / 2000;
     // this.mesh.rotation.y = this.time / 1000;
 
     // this.material.uniforms.time.value = this.time;
-    this.setPosition();
     this.renderer.render(this.scene, this.camera);
     window.requestAnimationFrame(this.render.bind(this));
   }
