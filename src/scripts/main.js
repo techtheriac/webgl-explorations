@@ -5,6 +5,7 @@ import FontFaceObserver from "fontfaceobserver";
 import gsap from "gsap";
 import fragment from "../shaders/fragment.glsl";
 import vertex from "../shaders/vertex.glsl";
+import noise from "../shaders/noise.glsl";
 import Scroll from "./scroll";
 
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
@@ -92,6 +93,7 @@ export default class Sketch {
       uniforms: {
         tDiffuse: { value: null },
         scrollSpeed: { value: null },
+        time: {value: null}
       },
       vertexShader: `
         varying vec2 vUv;
@@ -106,14 +108,20 @@ export default class Sketch {
         uniform sampler2D tDiffuse;
         varying vec2 vUv;
         uniform float scrollSpeed;
+        uniform float time;
+        ${noise}
         void main(){
           vec2 newUV = vUv;
-          float area = smoothstep(0.4,0.,vUv.y);
+          float area = smoothstep(1.0,.6,vUv.y) * 2. - 1.;
+          //area = pow(area, 4.);
+          float noise = 0.5*(cnoise(vec3(vUv*10.0, time/15.)) + 1.0);
+          float n = smoothstep(0.5, 0.51, noise + area);
           newUV.x -= (vUv.x - 0.5)*0.1*area*scrollSpeed;
           gl_FragColor = texture2D( tDiffuse, newUV);
           //area = pow(area,4.);
           //newUV.x -= (vUv.x - 0.5)*0.1*area*scrollSpeed;
-         // gl_FragColor = vec4(area,0.,0.,1.);
+          //gl_FragColor = vec4(n,0.,0.,1.);
+          gl_FragColor = mix(vec4(1.0),texture2D( tDiffuse, newUV), n);
         }
         `,
     };
@@ -233,6 +241,7 @@ export default class Sketch {
     // Interpolates between the scroll speed value of 0 and 1
     // this.scroll.speedTarget comes from the custom scroll library
     this.customPass.uniforms.scrollSpeed.value = this.scroll.speedTarget;
+     this.customPass.uniforms.time.value = this.time;
     // this.mesh.rotation.x = this.time / 2000;
     // this.mesh.rotation.y = this.time / 1000;
     this.materials.forEach((m) => {
