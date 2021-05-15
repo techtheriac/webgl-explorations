@@ -12,12 +12,6 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 
-// const scroll = new LocomotiveScroll({
-//   el: document.querySelector("[data-scroll-container]"),
-//   smooth: true,
-//   lerp: 0.01,
-// });
-
 import cityScape from "../images/city_scape.jpg";
 
 export default class Sketch {
@@ -226,23 +220,6 @@ export default class Sketch {
     this.camera.aspect = this.width / this.height;
     this.camera.updateProjectionMatrix();
   };
-
-  addObjects() {
-    this.geometry = new THREE.PlaneBufferGeometry(200, 400, 10, 10);
-
-    this.material = new THREE.ShaderMaterial({
-      uniforms: {
-        time: { value: 0 },
-        cityScapeTexture: { value: new THREE.TextureLoader().load(cityScape) },
-      },
-      side: THREE.DoubleSide,
-      fragmentShader: fragment,
-      vertexShader: vertex,
-    });
-
-    this.mesh = new THREE.Mesh(this.geometry, this.material);
-    this.scene.add(this.mesh);
-  }
 
   render() {
     this.time += 0.25;
